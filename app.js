@@ -35,4 +35,36 @@ app.get("/stocks/:symbol", async (req, res) => {
   }
 });
 
+async function fetchStocks() {
+  try {
+    const response = await fetch("/stocks");
+    const { stockSymbols } = await response.json();
+    return stockSymbols;
+  } catch (error) {
+    console.error("failed to fetch stocks", error);
+  }
+}
+
+async function fetchStockData(symbol) {
+  try {
+    const response = await fetch("/stocks/${symbol}");
+    const data = await response.json();
+    console.log("Data for ${symbol}:", data);
+    return data;
+  } catch (error) {
+    console.error("failed to fetch data for ${symbol}", error);
+  }
+}
+
+async function loadData() {
+  const spinner = document.querySelector(".spinner");
+  const symbols = await fetchStocks();
+
+  const dataPromise = symbols.map((symbol) => fetchStockData(symbol));
+
+  Promise.all(dataPromise).then(() => {
+    spinner.getElementsByClassName.display = "none";
+  });
+}
+
 app.listen(3000, () => console.log("Server is running!"));
